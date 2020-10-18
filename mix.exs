@@ -46,7 +46,8 @@ defmodule ElixirFilms.MixProject do
       {:httpoison, "~> 1.6"},
       {:que, "~> 0.10.1"},
       {:timex, "~> 3.5"},
-      {:ecto_enum, "~> 1.4"}
+      {:ecto_enum, "~> 1.4"},
+      {:scrivener_ecto, "~> 2.0"}
     ]
   end
 

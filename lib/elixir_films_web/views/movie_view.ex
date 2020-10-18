@@ -3,7 +3,13 @@ defmodule ElixirFilmsWeb.MovieView do
   alias ElixirFilmsWeb.MovieView
 
   def render("index.json", %{movies: movies}) do
-    %{data: render_many(movies, MovieView, "movie.json")}
+    %{
+      pagination: %{
+        total_pages: movies.total_pages,
+        current: movies.page_number
+      },
+      data: render_many(movies, MovieView, "movie.json")
+    }
   end
 
   def render("show.json", %{movie: movie}) do

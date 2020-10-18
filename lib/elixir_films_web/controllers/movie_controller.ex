@@ -4,8 +4,8 @@ defmodule ElixirFilmsWeb.MovieController do
   alias ElixirFilms.Movies
   action_fallback ElixirFilmsWeb.FallbackController
 
-  def index(conn, _params) do
-    movies = Movies.list_movies()
+  def index(conn, params) do
+    movies = Movies.list_movies(params)
     render(conn, "index.json", movies: movies)
   end
 

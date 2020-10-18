@@ -20,8 +20,10 @@ defmodule ElixirFilms.Movies do
       [%Movie{}, ...]
 
   """
-  def list_movies do
-    Repo.all(Movie)
+  def list_movies(params) do
+    Movie
+    |> order_by(:id)
+    |> Repo.paginate(page: params["page"])
   end
 
   @doc """
