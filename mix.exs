@@ -45,7 +45,8 @@ defmodule ElixirFilms.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:httpoison, "~> 1.6"},
       {:que, "~> 0.10.1"},
-      {:timex, "~> 3.5"}
+      {:timex, "~> 3.5"},
+      {:ecto_enum, "~> 1.4"}
     ]
   end
 

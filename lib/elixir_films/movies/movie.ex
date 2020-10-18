@@ -4,6 +4,7 @@ defmodule ElixirFilms.Movies.Movie do
 
   schema "movies" do
     field :actors, :string
+    field :status, :string
     field :director, :string
     field :genre, :string
     field :poster, :string
@@ -16,8 +17,26 @@ defmodule ElixirFilms.Movies.Movie do
   @doc false
   def changeset(movie, attrs) do
     movie
-    |> cast(attrs, [:title, :genre, :released, :director, :actors, :poster])
-    |> validate_required([:title, :genre, :released, :director, :actors, :poster])
+    |> cast(attrs, [:title, :genre, :released, :director, :actors, :poster, :status])
+    |> validate_required([:title])
     |> unique_constraint(:title)
+    |> put_status()
+    |> validate_enum_status()
+  end
+
+  defp validate_enum_status(changeset) do
+    validate_change(changeset, :status, fn :status, status ->
+      case MovieStatus.valid_value?(status) do
+        true -> []
+        _ -> [status: "invalid value"]
+      end
+    end)
+  end
+
+  defp put_status(changeset) do
+    case Map.get(changeset.changes, :status) do
+      nil -> put_change(changeset, :status, "not_synchronized")
+      _ -> changeset
+    end
   end
 end

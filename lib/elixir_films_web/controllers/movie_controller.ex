@@ -2,8 +2,6 @@ defmodule ElixirFilmsWeb.MovieController do
   use ElixirFilmsWeb, :controller
 
   alias ElixirFilms.Movies
-  alias ElixirFilms.Movies.Movie
-
   action_fallback ElixirFilmsWeb.FallbackController
 
   def index(conn, _params) do

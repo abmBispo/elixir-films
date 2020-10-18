@@ -109,10 +109,11 @@ defmodule ElixirFilms.Movies do
 
   def import(movies_list) do
     Enum.each movies_list, fn movie ->
-      parsed_name =
-        Map.get(movie, "title")
-        |> String.replace(" ", "+")
-      uri = @omdb_url <> parsed_name
+      title = Map.get(movie, "title")
+      
+
+      parsed_title = String.replace(title, " ", "+")
+      uri = @omdb_url <> parsed_title
       Que.add(ImportMovieJob, uri)
     end
   end
