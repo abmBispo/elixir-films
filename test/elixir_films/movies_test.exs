@@ -21,7 +21,7 @@ defmodule ElixirFilms.MoviesTest do
 
     test "list_movies/0 returns all movies" do
       movie = movie_fixture()
-      assert Movies.list_movies() == [movie]
+      assert Movies.list_movies(%{}).entries == [movie]
     end
 
     test "get_movie!/1 returns the movie with given id" do

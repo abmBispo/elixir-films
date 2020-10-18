@@ -9,11 +9,6 @@ defmodule ElixirFilmsWeb.MovieController do
     render(conn, "index.json", movies: movies)
   end
 
-  def show(conn, %{"id" => id}) do
-    movie = Movies.get_movie!(id)
-    render(conn, "show.json", movie: movie)
-  end
-
   def omdb_import(conn, params) do
     params
     |> Map.get("_json")

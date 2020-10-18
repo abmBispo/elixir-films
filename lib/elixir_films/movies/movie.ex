@@ -46,11 +46,18 @@ defmodule ElixirFilms.Movies.Movie do
   end
 
   defp put_parsed_title(changeset) do
-    title =
-      (changeset.data.title || changeset.changes.title)
-      |> String.downcase()
-      |> String.replace(" ", "+")
+    title = Map.get(changeset.data, :title) || Map.get(changeset.changes, :title)
 
-    put_change(changeset, :parsed_title, title)
+    case title do
+      nil ->
+        changeset
+
+      _ ->
+        parsed_title =
+          String.downcase(title)
+          |> String.replace(" ", "+")
+
+        put_change(changeset, :parsed_title, parsed_title)
+    end
   end
 end

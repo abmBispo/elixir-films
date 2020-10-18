@@ -2,7 +2,6 @@ defmodule ElixirFilmsWeb.MovieControllerTest do
   use ElixirFilmsWeb.ConnCase
 
   alias ElixirFilms.Movies
-  alias ElixirFilms.Movies.Movie
 
   @create_attrs %{
     actors: "some actors",
@@ -12,15 +11,27 @@ defmodule ElixirFilmsWeb.MovieControllerTest do
     released: ~D[2010-04-17],
     title: "some title"
   }
-  @update_attrs %{
-    actors: "some updated actors",
-    director: "some updated director",
-    genre: "some updated genre",
-    poster: "some updated poster",
-    released: ~D[2011-05-18],
-    title: "some updated title"
-  }
-  @invalid_attrs %{actors: nil, director: nil, genre: nil, poster: nil, released: nil, title: nil}
+
+  @import_json [
+    %{
+      title: "V for Vendetta"
+    },
+    %{
+      title: "Captain Marvel"
+    },
+    %{
+      title: "Frozen"
+    },
+    %{
+      title: "Click"
+    },
+    %{
+      title: "Airplane!"
+    },
+    %{
+      title: "Doctor Strange"
+    }
+  ]
 
   def fixture(:movie) do
     {:ok, movie} = Movies.create_movie(@create_attrs)
@@ -33,75 +44,36 @@ defmodule ElixirFilmsWeb.MovieControllerTest do
 
   describe "index" do
     test "lists all movies", %{conn: conn} do
+      create_movie()
       conn = get(conn, Routes.movie_path(conn, :index))
-      assert json_response(conn, 200)["data"] == []
+
+      data =
+        json_response(conn, 200)["data"]
+        |> List.first()
+
+      assert data["actors"] == "some actors"
+      assert data["title"] == "some title"
     end
   end
 
-  describe "create movie" do
-    test "renders movie when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.movie_path(conn, :create), movie: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+  describe "import" do
+    test "send list of titles to be imported", %{conn: conn} do
+      conn = post(conn, Routes.movie_path(conn, :omdb_import), _json: @import_json)
+      assert response(conn, 204) == ""
+      :timer.sleep(500)
 
-      conn = get(conn, Routes.movie_path(conn, :show, id))
+      conn = get(conn, Routes.movie_path(conn, :index))
 
-      assert %{
-               "id" => id,
-               "actors" => "some actors",
-               "director" => "some director",
-               "genre" => "some genre",
-               "poster" => "some poster",
-               "released" => "2010-04-17",
-               "title" => "some title"
-             } = json_response(conn, 200)["data"]
-    end
+      data =
+        json_response(conn, 200)["data"]
+        |> List.first()
 
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.movie_path(conn, :create), movie: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
+      assert data["title"] == "V for Vendetta"
+      assert data["status"] == "fetched"
     end
   end
 
-  describe "update movie" do
-    setup [:create_movie]
-
-    test "renders movie when data is valid", %{conn: conn, movie: %Movie{id: id} = movie} do
-      conn = put(conn, Routes.movie_path(conn, :update, movie), movie: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
-
-      conn = get(conn, Routes.movie_path(conn, :show, id))
-
-      assert %{
-               "id" => id,
-               "actors" => "some updated actors",
-               "director" => "some updated director",
-               "genre" => "some updated genre",
-               "poster" => "some updated poster",
-               "released" => "2011-05-18",
-               "title" => "some updated title"
-             } = json_response(conn, 200)["data"]
-    end
-
-    test "renders errors when data is invalid", %{conn: conn, movie: movie} do
-      conn = put(conn, Routes.movie_path(conn, :update, movie), movie: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
-    end
-  end
-
-  describe "delete movie" do
-    setup [:create_movie]
-
-    test "deletes chosen movie", %{conn: conn, movie: movie} do
-      conn = delete(conn, Routes.movie_path(conn, :delete, movie))
-      assert response(conn, 204)
-
-      assert_error_sent 404, fn ->
-        get(conn, Routes.movie_path(conn, :show, movie))
-      end
-    end
-  end
-
-  defp create_movie(_) do
+  defp create_movie() do
     movie = fixture(:movie)
     %{movie: movie}
   end
