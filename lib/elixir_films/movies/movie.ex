@@ -10,6 +10,7 @@ defmodule ElixirFilms.Movies.Movie do
     field :poster, :string
     field :released, :date
     field :title, :string
+    field :parsed_title, :string
 
     timestamps()
   end
@@ -18,10 +19,12 @@ defmodule ElixirFilms.Movies.Movie do
   def changeset(movie, attrs) do
     movie
     |> cast(attrs, [:title, :genre, :released, :director, :actors, :poster, :status])
-    |> validate_required([:title])
-    |> unique_constraint(:title)
+    |> put_parsed_title()
     |> put_status()
     |> validate_enum_status()
+    |> validate_required([:title, :parsed_title])
+    |> unique_constraint(:title)
+    |> unique_constraint(:parsed_title)
   end
 
   defp validate_enum_status(changeset) do
@@ -34,9 +37,20 @@ defmodule ElixirFilms.Movies.Movie do
   end
 
   defp put_status(changeset) do
-    case Map.get(changeset.data, :status) do
+    status = Map.get(changeset.data, :status) || Map.get(changeset.changes, :status)
+
+    case status do
       nil -> put_change(changeset, :status, "not_synchronized")
       _ -> changeset
     end
+  end
+
+  defp put_parsed_title(changeset) do
+    title =
+      (changeset.data.title || changeset.changes.title)
+      |> String.downcase()
+      |> String.replace(" ", "+")
+
+    put_change(changeset, :parsed_title, title)
   end
 end

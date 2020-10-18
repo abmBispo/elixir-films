@@ -1,6 +1,6 @@
 defmodule ElixirFilms.Movies.ImportMovieJob do
   require Logger
-  use Que.Worker
+  use Que.Worker, concurrency: 8
 
   alias ElixirFilms.Movies
   alias ElixirFilms.Movies.Movie
@@ -13,12 +13,11 @@ defmodule ElixirFilms.Movies.ImportMovieJob do
         {:ok, movie} ->
           movie
 
-        {:error, %Ecto.Changeset{errors: [title: {_, _}]}} ->
-          Movies.get_movie!(movie_title)
+        {:error, %Ecto.Changeset{changes: %{parsed_title: parsed_title}}} ->
+          Movies.get_movie!(parsed_title: parsed_title)
       end
 
-    parsed_title = String.replace(movie_title, " ", "+")
-    uri = @omdb_url <> parsed_title
+    uri = @omdb_url <> movie.parsed_title
 
     with omdb_response <- HTTPoison.get!(uri).body,
          parsed_data <- Jason.decode!(omdb_response),

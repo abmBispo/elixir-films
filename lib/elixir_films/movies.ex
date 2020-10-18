@@ -40,8 +40,8 @@ defmodule ElixirFilms.Movies do
   """
   def get_movie!(id) when is_integer(id), do: Repo.get!(Movie, id)
 
-  def get_movie!(title) when is_binary(title) do
-    query = from movie in Movie, where: movie.title == ^title
+  def get_movie!(parsed_title: parsed_title) do
+    query = from movie in Movie, where: movie.parsed_title == ^parsed_title
 
     Repo.one!(query)
   end

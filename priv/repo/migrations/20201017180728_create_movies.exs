@@ -5,6 +5,7 @@ defmodule ElixirFilms.Repo.Migrations.CreateMovies do
     MovieStatus.create_type()
     create table(:movies) do
       add :title, :string, null: false
+      add :parsed_title, :string, null: false
       add :status, MovieStatus.type(), null: false
       add :genre, :string, null: false, default: "N/A"
       add :released, :date
@@ -16,5 +17,6 @@ defmodule ElixirFilms.Repo.Migrations.CreateMovies do
     end
 
     create index("movies", [:title], unique: true)
+    create index("movies", [:parsed_title], unique: true)
   end
 end
