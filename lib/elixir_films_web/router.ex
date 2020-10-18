@@ -7,6 +7,9 @@ defmodule ElixirFilmsWeb.Router do
 
   scope "/api", ElixirFilmsWeb do
     pipe_through :api
+
+    resources "/movies", MovieController, only: [:index, :show]
+    post "/movies/import", MovieController, :omdb_import
   end
 
   # Enables LiveDashboard only for development

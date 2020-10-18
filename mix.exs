@@ -42,7 +42,10 @@ defmodule ElixirFilms.MixProject do
       {:telemetry_poller, "~> 0.4"},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"}
+      {:plug_cowboy, "~> 2.0"},
+      {:httpoison, "~> 1.6"},
+      {:que, "~> 0.10.1"},
+      {:timex, "~> 3.5"}
     ]
   end
 
