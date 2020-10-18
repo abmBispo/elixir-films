@@ -11,12 +11,15 @@ defmodule ElixirFilmsWeb.MovieView do
   end
 
   def render("movie.json", %{movie: movie}) do
-    %{id: movie.id,
+    %{
+      id: movie.id,
       title: movie.title,
       genre: movie.genre,
-      released: movie.released,
+      released: movie.released || "N/A",
       director: movie.director,
       actors: movie.actors,
-      poster: movie.poster}
+      poster: movie.poster,
+      status: movie.status
+    }
   end
 end

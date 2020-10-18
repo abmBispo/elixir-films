@@ -5,19 +5,42 @@ defmodule ElixirFilms.Movies.ImportMovieJob do
   alias ElixirFilms.Movies
   alias ElixirFilms.Movies.Movie
 
-  def perform(uri) do
+  @omdb_url "http://www.omdbapi.com/?i=tt3896198&apikey=def1de67&t="
+
+  def perform(movie_title) do
+    movie =
+      case Movies.create_movie(%{title: movie_title, status: "syncing"}) do
+        {:ok, movie} ->
+          movie
+
+        {:error, %Ecto.Changeset{errors: [title: {_, _}]}} ->
+          Movies.get_movie!(movie_title)
+      end
+
+    parsed_title = String.replace(movie_title, " ", "+")
+    uri = @omdb_url <> parsed_title
+
     with omdb_response <- HTTPoison.get!(uri).body,
          parsed_data <- Jason.decode!(omdb_response),
          {:ok, movie_data} <- to_movie_data(parsed_data),
-         {:ok, %Movie{} = movie} <- Movies.create_movie(movie_data),
-         do: movie
+         {:ok, %Movie{} = movie} <- Movies.update_movie(movie, movie_data) do
+      movie
+    else
+      _ -> Movies.update_movie(movie, %{status: "failed"})
+    end
   end
 
   defp to_movie_data(data) do
     if data["Error"] do
       {:error, :not_found}
     else
-      {:ok, parsed_date} = Timex.parse(data["Released"], "%d %b %Y", :strftime)
+      parsed_date =
+        if data["Released"] != "N/A" do
+          {:ok, parsed_date} = Timex.parse(data["Released"], "%d %b %Y", :strftime)
+          NaiveDateTime.to_date(parsed_date)
+        else
+          nil
+        end
 
       {:ok,
        %{
@@ -25,8 +48,9 @@ defmodule ElixirFilms.Movies.ImportMovieJob do
          director: data["Director"],
          genre: data["Genre"],
          poster: data["Poster"],
-         released: NaiveDateTime.to_date(parsed_date),
-         title: data["Title"]
+         released: parsed_date,
+         title: data["Title"],
+         status: "fetched"
        }}
     end
   end

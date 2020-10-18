@@ -34,7 +34,7 @@ defmodule ElixirFilms.Movies.Movie do
   end
 
   defp put_status(changeset) do
-    case Map.get(changeset.changes, :status) do
+    case Map.get(changeset.data, :status) do
       nil -> put_change(changeset, :status, "not_synchronized")
       _ -> changeset
     end

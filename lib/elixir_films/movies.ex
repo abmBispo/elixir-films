@@ -1,6 +1,4 @@
 defmodule ElixirFilms.Movies do
-  @omdb_url "http://www.omdbapi.com/?i=tt3896198&apikey=def1de67&t="
-
   @moduledoc """
   The Movies context.
   """
@@ -40,7 +38,13 @@ defmodule ElixirFilms.Movies do
       ** (Ecto.NoResultsError)
 
   """
-  def get_movie!(id), do: Repo.get!(Movie, id)
+  def get_movie!(id) when is_integer(id), do: Repo.get!(Movie, id)
+
+  def get_movie!(title) when is_binary(title) do
+    query = from movie in Movie, where: movie.title == ^title
+
+    Repo.one!(query)
+  end
 
   @doc """
   Creates a movie.
@@ -108,13 +112,6 @@ defmodule ElixirFilms.Movies do
   end
 
   def import(movies_list) do
-    Enum.each movies_list, fn movie ->
-      title = Map.get(movie, "title")
-      
-
-      parsed_title = String.replace(title, " ", "+")
-      uri = @omdb_url <> parsed_title
-      Que.add(ImportMovieJob, uri)
-    end
+    Enum.each(movies_list, &Que.add(ImportMovieJob, Map.get(&1, "title")))
   end
 end
