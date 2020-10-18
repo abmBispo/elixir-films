@@ -46,3 +46,7 @@ $ docker-compose run web mix ecto.create
 $ docker-compose run web mix ecto.migrate
 $ docker-compose up
 ```
+
+## Testing
+
+Want to test it? [Postman lib here](https://documenter.getpostman.com/view/479599/TVRrWQiU).
