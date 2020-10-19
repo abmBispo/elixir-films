@@ -1,10 +1,13 @@
 use Mix.Config
 
-database_url = System.get_env("DATABASE_URL")
+# database_url = System.get_env("DATABASE_URL")
 
 # Configure your database
 config :elixir_films, ElixirFilms.Repo,
-  url: database_url,
+  username: "postgres",
+  password: "postgres",
+  database: "elixir_films_dev",
+  hostname: "127.0.0.1",
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
